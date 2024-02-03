@@ -30,8 +30,8 @@
     <div class="jumbotron" style="background-color: #e3f2fd;">
         <h1 class="display-4">Lista de Actores </h1>
         <ul class="list-group">
-            <li class="list-group-item"> <a href="http://">List actors</a></li>
-            <li class="list-group-item"><a href="http://">Count actors</a></li>
+            <li class="list-group-item"> <a href="/actorout/actors">List actors</a></li>
+            <li class="list-group-item"><a href="/actorout/countActors">Count actors</a></li>
         </ul>
     </div>
 </div>
