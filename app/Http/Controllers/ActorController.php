@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class ActorController
 {
@@ -13,10 +14,20 @@ class ActorController
         return view('actors.list', ['actors' => $actors, "title" => $title]);
     }
 
-    public function listActorsByDecade($year)
+    public function listActorsByDecade(Request $request)
     {
-        // Lógica para listar actores por década
-    }
+        $decade = $request->input('decade');
+
+        $startYear = $decade;
+        $endYear = $decade + 9;
+            $actors = DB::table('actors')
+                    ->whereBetween(DB::raw('YEAR(birthdate)'), [$startYear, $endYear])
+                    ->get();
+    
+        return view('wellcome', [
+            'actors' => $actors,
+            'title' => 'Actores de la década ' . $startYear . 's'
+        ]);    }
 
     public function countActors()
     {

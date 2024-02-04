@@ -33,6 +33,50 @@
             <li class="list-group-item"> <a href="/actorout/actors">List actors</a></li>
             <li class="list-group-item"><a href="/actorout/countActors">Count actors</a></li>
         </ul>
+        <div class="mt-4">
+            <h4>Lista de Actores por Década</h4>
+            <form action="{{ route('listActorsByDecade') }}" method="GET">
+                <div class="form-group">
+                    <label for="decade">Selecciona una década:</label>
+                    <select class="form-control" id="decade" name="decade">
+                        <option value="1980">1980s</option>
+                        <option value="1990">1990s</option>
+                        <option value="2000">2000s</option>
+                        <option value="2010">2010s</option>
+                        <option value="2020">2020s</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Buscar</button>
+            </form>
+        </div>
+        @if(isset($actors))
+        <div class="mt-4">
+            <h4>Resultados:{{ $title }}</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Fecha de Nacimiento</th>
+                        <th>País</th>
+                        <th>Imagen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($actors as $actor)
+                    <tr>
+                        <td>{{ $actor->name }}</td>
+                        <td>{{ $actor->surname }}</td>
+                        <td>{{ $actor->birthdate }}</td>
+                        <td>{{ $actor->country }}</td>
+                        <td><img src="{{ $actor->img_url }}" alt="{{ $actor->name }}" style="max-width: 100px;"></td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        @endif
+
     </div>
 </div>
 <br>

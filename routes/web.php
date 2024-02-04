@@ -38,7 +38,7 @@ Route::middleware('year')->group(function () {
     Route::group(['prefix' => 'actorout'], function () {
         // Rutas incluidas con el prefijo "actorout"
         Route::get('actors', [ActorController::class, 'listActors'])->name('listActors');
-        Route::get('listActorsByDecade/{year}', [ActorController::class, 'listActorsByDecade'])->name('listActorsByDecade');
+        Route::get('listActorsByDecade', [ActorController::class, 'listActorsByDecade'])->name('listActorsByDecade');
         Route::get('countActors', [ActorController::class, 'countActors'])->name('countActors');
         Route::delete('actors/{id}', [ActorController::class, 'deleteActor'])->name('deleteActor');
     });
