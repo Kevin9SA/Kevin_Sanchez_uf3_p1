@@ -9,7 +9,8 @@ class ActorController
     public function listActors()
     {
         $actors = DB::table('actors')->get();
-        return view('actors.list', ['actors' => $actors]);
+        $title = "Listado de Actores";
+        return view('actors.list', ['actors' => $actors, "title" => $title]);
     }
 
     public function listActorsByDecade($year)
