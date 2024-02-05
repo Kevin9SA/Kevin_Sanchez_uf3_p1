@@ -24,7 +24,7 @@ class ActorController
                     ->whereBetween(DB::raw('YEAR(birthdate)'), [$startYear, $endYear])
                     ->get();
     
-        return view('wellcome', [
+        return view('welcome', [
             'actors' => $actors,
             'title' => 'Actores de la década ' . $startYear . 's'
         ]);    }
