@@ -1,8 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FilmController extends Controller
 {
@@ -12,7 +14,12 @@ class FilmController extends Controller
      */
     public static function readFilms(): array
     {
-        $films = Storage::json('/public/films.json');
+        $filmsFromJson = Storage::json('/public/films.json');
+        $filmsFromDatabase = DB::table('films')->get();
+        if (is_string($filmsFromJson)) {
+            $Json = json_decode($filmsFromJson, true);
+            $films = array_merge($Json, $filmsFromDatabase->toArray());
+        }
         return $films;
     }
     /**
@@ -143,6 +150,9 @@ class FilmController extends Controller
             'img_url' => 'required|url',
         ]);
 
+    $dataSource = env('DATA_SOURCE');
+
+    if ($dataSource === 'json') {
         $films = $this->readFilms();
         if (!$this->isFilm($films, $request->input('name'))) {
             $newFilm = [
@@ -160,6 +170,25 @@ class FilmController extends Controller
         } else {
             return redirect('/')->with('error', 'Film name already exists');
         }
+    } elseif ($dataSource === 'sql') {
+        // Si el origen de datos es SQL
+        $newFilm = [
+            'name' => $request->input('name'),
+            'year' => $request->input('year'),
+            'genre' => $request->input('genre'),
+            'country' => $request->input('country'),
+            'duration' => $request->input('duration'),
+            'img_url' => $request->input('img_url'),
+        ];
+
+        // Insertar los datos en la base de datos utilizando el Query Builder
+        DB::table('films')->insert($newFilm);
+
+        return $this->listFilms();
+    } else {
+        // Manejar el caso en que la bandera DATA_SOURCE no esté configurada correctamente
+        return redirect('/')->with('error', 'Invalid data source specified');
+    }
     }
 
 
