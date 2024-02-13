@@ -16,10 +16,10 @@ class FilmController extends Controller
     {
         $filmsFromJson = Storage::json('/public/films.json');
         $filmsFromDatabase = DB::table('films')->get();
-        if (is_string($filmsFromJson)) {
-            $Json = json_decode($filmsFromJson, true);
-            $films = array_merge($Json, $filmsFromDatabase->toArray());
-        }
+        $ddbb= json_decode($filmsFromDatabase,true);
+        
+        $films = array_merge($filmsFromJson, $ddbb);
+
         return $films;
     }
     /**
@@ -150,11 +150,27 @@ class FilmController extends Controller
             'img_url' => 'required|url',
         ]);
 
-    $dataSource = env('DATA_SOURCE');
+        $dataSource = env('DATA_SOURCE');
 
-    if ($dataSource === 'json') {
-        $films = $this->readFilms();
-        if (!$this->isFilm($films, $request->input('name'))) {
+        if ($dataSource === 'json') {
+            $films = $this->readFilms();
+            if (!$this->isFilm($films, $request->input('name'))) {
+                $newFilm = [
+                    'name' => $request->input('name'),
+                    'year' => $request->input('year'),
+                    'genre' => $request->input('genre'),
+                    'country' => $request->input('country'),
+                    'duration' => $request->input('duration'),
+                    'img_url' => $request->input('img_url'),
+                ];
+
+                $films[] = $newFilm;
+                Storage::put('/public/films.json', json_encode($films));
+                return $this->listFilms();
+            } else {
+                return redirect('/')->with('error', 'Film name already exists');
+            }
+        } elseif ($dataSource === 'sql') {
             $newFilm = [
                 'name' => $request->input('name'),
                 'year' => $request->input('year'),
@@ -163,32 +179,12 @@ class FilmController extends Controller
                 'duration' => $request->input('duration'),
                 'img_url' => $request->input('img_url'),
             ];
+            DB::table('films')->insert($newFilm);
 
-            $films[] = $newFilm;
-            Storage::put('/public/films.json', json_encode($films));
             return $this->listFilms();
         } else {
-            return redirect('/')->with('error', 'Film name already exists');
+            return redirect('/')->with('error', 'Invalid data source specified');
         }
-    } elseif ($dataSource === 'sql') {
-        // Si el origen de datos es SQL
-        $newFilm = [
-            'name' => $request->input('name'),
-            'year' => $request->input('year'),
-            'genre' => $request->input('genre'),
-            'country' => $request->input('country'),
-            'duration' => $request->input('duration'),
-            'img_url' => $request->input('img_url'),
-        ];
-
-        // Insertar los datos en la base de datos utilizando el Query Builder
-        DB::table('films')->insert($newFilm);
-
-        return $this->listFilms();
-    } else {
-        // Manejar el caso en que la bandera DATA_SOURCE no esté configurada correctamente
-        return redirect('/')->with('error', 'Invalid data source specified');
-    }
     }
 
 
@@ -202,5 +198,4 @@ class FilmController extends Controller
 
         return false;
     }
-
 }
