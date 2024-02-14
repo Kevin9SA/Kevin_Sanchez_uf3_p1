@@ -16,16 +16,18 @@ class FilmActorSeeder extends Seeder
     {
         $faker = Faker::create();
 
-        foreach (range(1, 10) as $index) {
-            DB::table('actors')->insert([
-                'name' => $faker->text(30),
-                'surname' => $faker->text(30),
-                'birthdate' => $faker->date,
-                'country' => $faker->text(30),
-                'img_url' => $faker->imageUrl(640, 480),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+        foreach (range(1, 10) as $filmIndex) {
+            $actorCount = $faker->numberBetween(1, 3);
+
+            for ($actorIndex = 1; $actorIndex <= $actorCount; $actorIndex++) {
+                DB::table('film_actor')->insert([
+                    'film_id' => $filmIndex,
+                    'actor_id' => $faker->numberBetween(1, 10),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
         }
     }
+    
 }

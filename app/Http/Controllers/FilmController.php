@@ -1,8 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FilmController extends Controller
 {
@@ -12,7 +14,12 @@ class FilmController extends Controller
      */
     public static function readFilms(): array
     {
-        $films = Storage::json('/public/films.json');
+        $filmsFromJson = Storage::json('/public/films.json');
+        $filmsFromDatabase = DB::table('films')->get();
+        $ddbb= json_decode($filmsFromDatabase,true);
+        
+        $films = array_merge($filmsFromJson, $ddbb);
+
         return $films;
     }
     /**
@@ -143,8 +150,27 @@ class FilmController extends Controller
             'img_url' => 'required|url',
         ]);
 
-        $films = $this->readFilms();
-        if (!$this->isFilm($films, $request->input('name'))) {
+        $dataSource = env('DATA_SOURCE');
+
+        if ($dataSource === 'json') {
+            $films = $this->readFilms();
+            if (!$this->isFilm($films, $request->input('name'))) {
+                $newFilm = [
+                    'name' => $request->input('name'),
+                    'year' => $request->input('year'),
+                    'genre' => $request->input('genre'),
+                    'country' => $request->input('country'),
+                    'duration' => $request->input('duration'),
+                    'img_url' => $request->input('img_url'),
+                ];
+
+                $films[] = $newFilm;
+                Storage::put('/public/films.json', json_encode($films));
+                return $this->listFilms();
+            } else {
+                return redirect('/')->with('error', 'Film name already exists');
+            }
+        } elseif ($dataSource === 'sql') {
             $newFilm = [
                 'name' => $request->input('name'),
                 'year' => $request->input('year'),
@@ -153,12 +179,11 @@ class FilmController extends Controller
                 'duration' => $request->input('duration'),
                 'img_url' => $request->input('img_url'),
             ];
+            DB::table('films')->insert($newFilm);
 
-            $films[] = $newFilm;
-            Storage::put('/public/films.json', json_encode($films));
             return $this->listFilms();
         } else {
-            return redirect('/')->with('error', 'Film name already exists');
+            return redirect('/')->with('error', 'Invalid data source specified');
         }
     }
 
@@ -173,5 +198,4 @@ class FilmController extends Controller
 
         return false;
     }
-
 }
