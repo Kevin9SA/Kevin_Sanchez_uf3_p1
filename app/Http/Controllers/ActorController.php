@@ -46,4 +46,29 @@ class ActorController
             return response()->json(['action' => 'delete', 'status' => false]);
         }
     }
+
+    public function updateActor($id, Request $request)
+    {         
+        $validatedData = $request->validate([
+            'name' => 'required',
+            'surname' => 'required',
+            'birthdate' => 'required',
+            'country' => 'required',
+            'img_url' => 'required',
+        ]);
+        $updated = DB::table('actors')
+            ->where('id', $id)
+            ->update([
+                'name' => $request->name,
+                'surname' => $request->surname,
+                'birthdate' => $request->birthdate,
+                'country' => $request->country,
+                'img_url' => $request->img_url,
+            ]);        
+        if ($updated) {            
+            return response()->json(['action' => 'update', 'status' => true]); 
+        } else {
+            return response()->json(['action' => 'update', 'status' => false]);
+        }
+    }
 }
