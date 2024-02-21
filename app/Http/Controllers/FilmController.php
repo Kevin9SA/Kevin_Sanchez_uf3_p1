@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Film;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +16,8 @@ class FilmController extends Controller
     public static function readFilms(): array
     {
         $filmsFromJson = Storage::json('/public/films.json');
-        $filmsFromDatabase = DB::table('films')->get();
+        //$filmsFromDatabase = DB::table('films')->get();
+        $filmsFromDatabase=Film::all();
         $ddbb= json_decode($filmsFromDatabase,true);
         
         $films = array_merge($filmsFromJson, $ddbb);
@@ -179,7 +181,9 @@ class FilmController extends Controller
                 'duration' => $request->input('duration'),
                 'img_url' => $request->input('img_url'),
             ];
-            DB::table('films')->insert($newFilm);
+
+            Film::create($newFilm);
+            // DB::table('films')->insert($newFilm);
 
             return $this->listFilms();
         } else {
